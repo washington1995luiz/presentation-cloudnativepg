@@ -8,6 +8,10 @@ crds:
 
 grafana:
   enabled: true
+  defaultDashboardsEnabled: true
+  service:
+    type: ClusterIP
+    port: 80
   admin:
     # Create this Secret in `cnpg`; do not keep Grafana credentials in Git.
     existingSecret: grafana-admin-credentials
@@ -29,6 +33,7 @@ grafana:
       enabled: true
       label: grafana_dashboard
       labelValue: "1"
+      searchNamespace: ALL
 
 prometheus:
   prometheusSpec:
