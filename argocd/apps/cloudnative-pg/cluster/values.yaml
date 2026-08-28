@@ -1,0 +1,103 @@
+# Values for: cnpg/cluster
+# Install this release in the namespace where the database will live.
+# This profile uses Cloudflare R2 through its S3-compatible API.
+
+namespaceOverride: cnpg
+
+fullnameOverride: app-postgres
+
+type: postgresql
+version:
+  postgresql: "17"
+
+cluster:
+  # Use 3 only when the storage class can place volumes across at least 3 nodes.
+  # For a small two-node lab, use 2; a single instance is not HA.
+  instances: 3
+
+  storage:
+    size: 30Gi
+    # Change if your provisioner has another name (e.g. oci-bv or longhorn).
+    storageClass: local-path
+
+  # The chart creates the owner credential Secret when `secret` is omitted.
+  initdb:
+    database: app
+    owner: app
+
+  resources:
+    # Keeping request = limit gives PostgreSQL Guaranteed QoS.
+    requests:
+      cpu: "1"
+      memory: 2Gi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+
+  postgresql:
+    parameters:
+      max_connections: "200"
+      shared_buffers: 512MB
+      effective_cache_size: 1536MB
+      maintenance_work_mem: 128MB
+      work_mem: 8MB
+      wal_compression: "on"
+
+  monitoring:
+    enabled: true
+    instrumentation:
+      pgStatStatements: true
+    podMonitor:
+      enabled: true
+      labels:
+        release: kube-prometheus-stack
+    prometheusRule:
+      enabled: true
+      additionalLabels:
+        release: kube-prometheus-stack
+
+  # The cluster chart turns this into the Barman plugin configuration and
+  # enables WAL archival when backups.method is `plugin`.
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      enabled: true
+      isWALArchiver: true
+
+backups:
+  enabled: true
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+
+  provider: s3
+  endpointURL: https://05740a57703ebe195c15dabbf102cc77.r2.cloudflarestorage.com
+  destinationPath: s3://backup-database/cloudnativepg/app-postgres
+  s3:
+    region: auto
+    bucket: backup-database
+    path: /cloudnativepg/app-postgres
+
+  # Create this Secret in the database namespace before installing the chart.
+  # The secret must follow the credential keys expected by the chart/plugin;
+  # never commit R2 tokens in this file.
+  secret:
+    create: false
+    name: cnpg-r2-credentials
+
+  wal:
+    compression: gzip
+    maxParallel: 2
+  data:
+    compression: gzip
+    jobs: 2
+
+  scheduledBackups:
+    - name: daily
+      # Six-field cron: 02:00 UTC daily. Change for the desired backup window.
+      schedule: "0 0 2 * * *"
+      backupOwnerReference: self
+      method: plugin
+      pluginConfiguration:
+        name: barman-cloud.cloudnative-pg.io
+
+  retentionPolicy: "30d"

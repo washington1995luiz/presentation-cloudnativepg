@@ -1,0 +1,44 @@
+# Values for: cnpg/cloudnative-pg
+# Install in cnpg-system. This chart owns the CloudNativePG operator and CRDs.
+
+namespaceOverride: cnpg
+
+replicaCount: 1
+
+crds:
+  create: true
+
+config:
+  # One operator can reconcile Clusters in all namespaces.
+  clusterWide: true
+  maxConcurrentReconciles: 10
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop:
+      - ALL
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+monitoring:
+  # Enable only when Prometheus Operator CRDs are installed.
+  podMonitorEnabled: true
+  podMonitorAdditionalLabels:
+    release: kube-prometheus-stack

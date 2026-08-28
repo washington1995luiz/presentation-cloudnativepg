@@ -1,0 +1,40 @@
+# Values for: cnpg/plugin-barman-cloud
+# Prerequisite: cert-manager must be installed and Ready before this release.
+
+namespaceOverride: cnpg
+
+replicaCount: 1
+
+crds:
+  create: true
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+certificate:
+  createIssuer: true
+  createClientCertificate: true
+  createServerCertificate: true
+  duration: 2160h
+  renewBefore: 360h
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop:
+      - ALL
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
