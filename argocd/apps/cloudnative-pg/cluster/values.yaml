@@ -92,9 +92,9 @@ backups:
     jobs: 2
 
   scheduledBackups:
-    - name: daily
-      # Six-field cron: 02:00 UTC daily. Change for the desired backup window.
-      schedule: "0 0 2 * * *"
+    - name: every-3-minutes
+      # Six-field cron: every 3 minutes. Suitable for disaster-recovery testing.
+      schedule: "0 */3 * * * *"
       backupOwnerReference: self
       method: plugin
       pluginConfiguration:
