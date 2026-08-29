@@ -71,11 +71,11 @@ backups:
 
   provider: s3
   endpointURL: https://05740a57703ebe195c15dabbf102cc77.r2.cloudflarestorage.com
-  destinationPath: s3://backup-database/cloudnativepg/app-postgres
+  destinationPath: s3://backup-database/cloudnativepg/app-postgres-timeline-2
   s3:
     region: auto
     bucket: backup-database
-    path: /cloudnativepg/app-postgres
+    path: /cloudnativepg/app-postgres-timeline-2
 
   # Create this Secret in the database namespace before installing the chart.
   # The secret must follow the credential keys expected by the chart/plugin;

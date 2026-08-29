@@ -5,7 +5,7 @@ metadata:
   namespace: cnpg
 spec:
   configuration:
-    destinationPath: s3://backup-database/cloudnativepg/app-postgres
+    destinationPath: s3://backup-database/cloudnativepg/app-postgres-timeline-2
     endpointURL: https://05740a57703ebe195c15dabbf102cc77.r2.cloudflarestorage.com
     s3Credentials:
       accessKeyId:
